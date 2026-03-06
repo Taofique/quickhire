@@ -1,8 +1,17 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import JobDetailsPage from "./pages/JobDetailsPage";
+import AdminPage from "./pages/AdminPage";
+
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-green-500">QuickHire</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/jobs/:id" element={<JobDetailsPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
