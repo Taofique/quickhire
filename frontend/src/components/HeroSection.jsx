@@ -1,4 +1,5 @@
 import pattern from "../assets/Hero_assets/Pattern.png";
+import heroPerson from "../assets/Hero_assets/Hero_person.png";
 
 const HeroSection = () => {
   return (
@@ -23,6 +24,20 @@ const HeroSection = () => {
           height: "100%", // ← fill the full section height
           width: "auto", // ← width scales naturally from height
           pointerEvents: "none",
+        }}
+      />
+
+      <img
+        src={heroPerson}
+        alt="Job seeker"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: "6%",
+          height: "90%",
+          width: "auto",
+          pointerEvents: "none",
+          zIndex: 10,
         }}
       />
     </section>
