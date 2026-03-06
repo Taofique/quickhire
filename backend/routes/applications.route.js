@@ -2,7 +2,7 @@ import express from "express";
 import {
   submitApplication,
   getApplicationsByJob,
-} from "../controllers/applications.controller";
+} from "../controllers/applications.controller.js";
 
 const router = express.Router();
 
