@@ -3,6 +3,7 @@ import CompaniesSection from "../components/CompaniesSection";
 import HeroSection from "../components/HeroSection";
 import Navbar from "../components/NavBar";
 import StartPostingSection from "../components/StartPostingSection";
+import FeaturedJobSection from "../components/FeaturedJobsSection";
 
 const HomePage = () => {
   return (
@@ -15,6 +16,7 @@ const HomePage = () => {
         <CategorySection />
 
         <StartPostingSection />
+        <FeaturedJobSection />
 
         {/* Temp spacer so page is scrollable to test navbar hide/show */}
         <div style={{ height: "1000px" }} />
