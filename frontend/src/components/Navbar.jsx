@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/Hero_assets/Logo_1.png";
 
-const Navbar = () => {
+const Navbar = ({ forceWhite = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeAuth, setActiveAuth] = useState("signup");
   const [hoveredNav, setHoveredNav] = useState(null);
@@ -12,8 +12,9 @@ const Navbar = () => {
   const location = useLocation();
 
   const navLinks = [
-    { label: "Find Jobs", path: "/" },
+    { label: "Find Jobs", path: "/jobs" },
     { label: "Browse Companies", path: "/companies" },
+    { label: "Admin", path: "/admin" },
   ];
 
   useEffect(() => {
@@ -49,32 +50,18 @@ const Navbar = () => {
           from { opacity: 0; transform: translateY(-8px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .mobile-nav-link {
-          display: flex;
-          align-items: center;
-          padding: 12px 16px;
-          border-radius: 10px;
-          color: #515B6F;
-          font-weight: 500;
-          text-decoration: none;
-          transition: all 0.2s ease;
-        }
         .mobile-nav-link:hover {
-          background-color: #F0F0FF;
-          color: #4640DE;
-          font-weight: 600;
-        }
-        .mobile-nav-link.active {
-          color: #4640DE;
-          font-weight: 600;
+          background-color: #F0F0FF !important;
+          color: #4640DE !important;
+          font-weight: 600 !important;
         }
       `}</style>
 
       <nav
         className="w-full border-b transition-all duration-300"
         style={{
-          backgroundColor: scrolled ? "#ffffff" : "transparent",
-          borderBottomColor: scrolled ? "#D6DDEB" : "transparent",
+          backgroundColor: forceWhite || scrolled ? "#ffffff" : "transparent",
+          borderBottomColor: forceWhite || scrolled ? "#D6DDEB" : "transparent",
         }}
       >
         {/* ── DESKTOP ── */}
@@ -85,7 +72,6 @@ const Navbar = () => {
             paddingRight: "clamp(32px, 8vw, 128px)",
           }}
         >
-          {/* LEFT — Logo + Nav Links */}
           <div className="flex items-center gap-10">
             <Link to="/" className="flex items-center shrink-0">
               <img src={logo} alt="QuickHire" className="h-8 w-auto" />
@@ -125,7 +111,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* RIGHT — Login | divider | Sign Up */}
           <div className="flex items-center">
             <button
               onClick={() => setActiveAuth("login")}
@@ -140,7 +125,6 @@ const Navbar = () => {
             >
               Login
             </button>
-
             <div
               style={{
                 width: "1px",
@@ -150,7 +134,6 @@ const Navbar = () => {
                 margin: "0 8px",
               }}
             />
-
             <button
               onClick={() => setActiveAuth("signup")}
               className="font-epilogue text-[16px] font-semibold transition-all duration-200 flex items-center justify-center cursor-pointer rounded"
@@ -254,15 +237,7 @@ const Navbar = () => {
                 key={link.label}
                 to={link.path}
                 onClick={() => setMenuOpen(false)}
-                onTouchStart={(e) => {
-                  e.currentTarget.style.backgroundColor = "#F0F0FF";
-                  e.currentTarget.style.color = "#4640DE";
-                }}
-                onTouchEnd={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#515B6F";
-                }}
-                className="font-epilogue text-[15px]"
+                className="mobile-nav-link font-epilogue text-[15px]"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -270,7 +245,8 @@ const Navbar = () => {
                   borderRadius: "10px",
                   color:
                     location.pathname === link.path ? "#4640DE" : "#515B6F",
-                  backgroundColor: "transparent",
+                  backgroundColor:
+                    location.pathname === link.path ? "#F0F0FF" : "transparent",
                   fontWeight: location.pathname === link.path ? 600 : 500,
                   textDecoration: "none",
                 }}

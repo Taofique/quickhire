@@ -211,7 +211,8 @@ const JobListingsPage = () => {
 
   return (
     <div style={{ backgroundColor: "#F8F8FD", minHeight: "100vh" }}>
-      <Navbar />
+      <Navbar forceWhite />
+      <div style={{ paddingTop: "72px" }} />
 
       <style>{`
         .jl-search-input {

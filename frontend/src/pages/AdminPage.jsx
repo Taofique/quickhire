@@ -38,11 +38,13 @@ const EMPTY_FORM = {
   category: "Design",
   type: "Full Time",
   description: "",
+  requirements: "", // comma-separated, converted to array on submit
+  salary: "",
 };
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const { jobs, fetchJobs } = useJobStore();
+  const { jobs, fetchJobs, createJob, deleteJob } = useJobStore();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -64,7 +66,16 @@ const AdminPage = () => {
   };
 
   const handleAdd = async () => {
-    const { title, company, location, category, type, description } = form;
+    const {
+      title,
+      company,
+      location,
+      category,
+      type,
+      description,
+      requirements,
+      salary,
+    } = form;
     if (!title || !company || !location || !description) {
       setFormError("Title, company, location and description are required.");
       return;
@@ -72,22 +83,24 @@ const AdminPage = () => {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          company,
-          location,
-          category,
-          type,
-          description,
-        }),
+      const requirementsArray = requirements
+        ? requirements
+            .split(",")
+            .map((r) => r.trim())
+            .filter(Boolean)
+        : [];
+      await createJob({
+        title,
+        company,
+        location,
+        category,
+        type,
+        description,
+        requirements: requirementsArray,
+        salary,
       });
-      if (!res.ok) throw new Error("Failed to add job");
       setSuccessMsg(`"${title}" at ${company} has been added!`);
       setForm(EMPTY_FORM);
-      fetchJobs(); // refresh store
     } catch (err) {
       setFormError("Failed to add job. Please try again.");
     } finally {
@@ -99,9 +112,7 @@ const AdminPage = () => {
     if (!window.confirm(`Delete "${jobTitle}"? This cannot be undone.`)) return;
     setDeletingId(jobId);
     try {
-      const res = await fetch(`/api/jobs/${jobId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
-      fetchJobs(); // refresh store
+      await deleteJob(jobId);
     } catch (err) {
       alert("Failed to delete job.");
     } finally {
@@ -111,7 +122,8 @@ const AdminPage = () => {
 
   return (
     <div style={{ backgroundColor: "#F8F8FD", minHeight: "100vh" }}>
-      <Navbar />
+      <Navbar forceWhite />
+      <div style={{ paddingTop: "72px" }} />
 
       <style>{`
         .admin-input {
@@ -538,21 +550,33 @@ const AdminPage = () => {
                 </div>
               </div>
 
-              {/* Type */}
-              <div style={{ maxWidth: "340px" }}>
-                <label className="admin-label">Job Type</label>
-                <select
-                  className="admin-select"
-                  name="type"
-                  value={form.type}
-                  onChange={handleChange}
-                >
-                  {JOB_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+              {/* Type + Salary */}
+              <div className="form-grid">
+                <div>
+                  <label className="admin-label">Job Type</label>
+                  <select
+                    className="admin-select"
+                    name="type"
+                    value={form.type}
+                    onChange={handleChange}
+                  >
+                    {JOB_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-label">Salary Range</label>
+                  <input
+                    className="admin-input"
+                    name="salary"
+                    placeholder="e.g. $120,000 - $150,000"
+                    value={form.salary}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
 
               {/* Description */}
@@ -565,6 +589,28 @@ const AdminPage = () => {
                   value={form.description}
                   onChange={handleChange}
                 />
+              </div>
+
+              {/* Requirements */}
+              <div>
+                <label className="admin-label">Requirements</label>
+                <input
+                  className="admin-input"
+                  name="requirements"
+                  placeholder="e.g. React, TypeScript, Node.js (comma-separated)"
+                  value={form.requirements}
+                  onChange={handleChange}
+                />
+                <p
+                  style={{
+                    fontFamily: "var(--font-epilogue)",
+                    fontSize: "12px",
+                    color: "#A8ADB7",
+                    margin: "6px 0 0 0",
+                  }}
+                >
+                  Separate each skill or requirement with a comma
+                </p>
               </div>
 
               {/* Messages */}
