@@ -17,7 +17,7 @@ const TAG_COLORS = {
 const JobDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { jobs, fetchJobs } = useJobStore();
+  const { jobs, fetchJobs, submitApplication, submitLoading } = useJobStore();
 
   const [form, setForm] = useState({
     name: "",
@@ -25,7 +25,6 @@ const JobDetailPage = () => {
     resumeUrl: "",
     coverNote: "",
   });
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -51,19 +50,11 @@ const JobDetailPage = () => {
       return;
     }
 
-    setSubmitting(true);
     try {
-      const res = await fetch("/api/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: id, name, email, resumeUrl, coverNote }),
-      });
-      if (!res.ok) throw new Error("Submission failed");
+      await submitApplication({ jobId: id, name, email, resumeUrl, coverNote });
       setSubmitted(true);
     } catch (err) {
       setFormError("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -562,30 +553,30 @@ const JobDetailPage = () => {
 
                   <button
                     onClick={handleSubmit}
-                    disabled={submitting}
+                    disabled={submitLoading}
                     style={{
                       fontFamily: "var(--font-epilogue)",
                       fontSize: "16px",
                       fontWeight: 700,
                       color: "#ffffff",
-                      backgroundColor: submitting ? "#A8ADB7" : "#4640DE",
+                      backgroundColor: submitLoading ? "#A8ADB7" : "#4640DE",
                       border: "none",
                       borderRadius: "4px",
                       padding: "16px",
-                      cursor: submitting ? "not-allowed" : "pointer",
+                      cursor: submitLoading ? "not-allowed" : "pointer",
                       transition: "background 0.2s",
                       width: "100%",
                     }}
                     onMouseEnter={(e) => {
-                      if (!submitting)
+                      if (!submitLoading)
                         e.target.style.backgroundColor = "#3530c0";
                     }}
                     onMouseLeave={(e) => {
-                      if (!submitting)
+                      if (!submitLoading)
                         e.target.style.backgroundColor = "#4640DE";
                     }}
                   >
-                    {submitting ? "Submitting..." : "Submit Application"}
+                    {submitLoading ? "Submitting..." : "Submit Application"}
                   </button>
                 </div>
               </>

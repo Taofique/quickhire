@@ -13,8 +13,8 @@ const CATEGORIES = [
   "Sales",
 ];
 const JOB_TYPES = [
-  "Full Time",
-  "Part Time",
+  "Full-time",
+  "Part-time",
   "Remote",
   "Contract",
   "Internship",
@@ -36,22 +36,34 @@ const EMPTY_FORM = {
   company: "",
   location: "",
   category: "Design",
-  type: "Full Time",
+  type: "Full-time",
   description: "",
-  requirements: "", // comma-separated, converted to array on submit
+  requirements: "",
   salary: "",
 };
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const { jobs, fetchJobs, createJob, deleteJob } = useJobStore();
+  const {
+    jobs,
+    fetchJobs,
+    createJob,
+    deleteJob,
+    fetchApplicationsByJobId,
+    getApplicationsForJob,
+  } = useJobStore();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [deletingId, setDeletingId] = useState(null);
-  const [activeTab, setActiveTab] = useState("listings"); // "listings" | "add"
+  const [activeTab, setActiveTab] = useState("listings");
+
+  // Applications tab state
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchedJobId, setSearchedJobId] = useState("");
 
   useEffect(() => {
     fetchJobs();
@@ -80,7 +92,6 @@ const AdminPage = () => {
       setFormError("Title, company, location and description are required.");
       return;
     }
-
     setSubmitting(true);
     try {
       const requirementsArray = requirements
@@ -120,6 +131,32 @@ const AdminPage = () => {
     }
   };
 
+  const handleDropdownChange = (e) => {
+    const id = e.target.value;
+    setSelectedJobId(id);
+    setSearchInput("");
+    if (id) {
+      setSearchedJobId(id);
+      fetchApplicationsByJobId(id);
+    } else {
+      setSearchedJobId("");
+    }
+  };
+
+  const handleSearch = () => {
+    const id = searchInput.trim();
+    if (!id) return;
+    setSelectedJobId("");
+    setSearchedJobId(id);
+    fetchApplicationsByJobId(id);
+  };
+
+  const tabs = [
+    { key: "listings", label: `All Listings (${allJobs.length})` },
+    { key: "add", label: "+ Add New Job" },
+    { key: "applications", label: "📋 Applications" },
+  ];
+
   return (
     <div style={{ backgroundColor: "#F8F8FD", minHeight: "100vh" }}>
       <Navbar forceWhite />
@@ -127,80 +164,54 @@ const AdminPage = () => {
 
       <style>{`
         .admin-input {
-          width: 100%;
-          padding: 12px 16px;
-          border: 1px solid #D6DDEB;
-          border-radius: 4px;
-          font-family: var(--font-epilogue);
-          font-size: 15px;
-          color: #202430;
-          background: #ffffff;
-          outline: none;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
+          width: 100%; padding: 12px 16px; border: 1px solid #D6DDEB;
+          border-radius: 4px; font-family: var(--font-epilogue); font-size: 15px;
+          color: #202430; background: #ffffff; outline: none;
+          box-sizing: border-box; transition: border-color 0.2s;
         }
         .admin-input:focus { border-color: #4640DE; }
         .admin-input::placeholder { color: #A8ADB7; }
         .admin-select {
-          width: 100%;
-          padding: 12px 16px;
-          border: 1px solid #D6DDEB;
-          border-radius: 4px;
-          font-family: var(--font-epilogue);
-          font-size: 15px;
-          color: #202430;
-          background: #ffffff;
-          outline: none;
-          box-sizing: border-box;
-          cursor: pointer;
-          transition: border-color 0.2s;
+          width: 100%; padding: 12px 16px; border: 1px solid #D6DDEB;
+          border-radius: 4px; font-family: var(--font-epilogue); font-size: 15px;
+          color: #202430; background: #ffffff; outline: none;
+          box-sizing: border-box; cursor: pointer; transition: border-color 0.2s;
           appearance: none;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23515B6F' strokeWidth='1.5' strokeLinecap='round'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 16px center;
-          padding-right: 40px;
+          background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
         }
         .admin-select:focus { border-color: #4640DE; }
         .admin-textarea {
-          width: 100%;
-          padding: 12px 16px;
-          border: 1px solid #D6DDEB;
-          border-radius: 4px;
-          font-family: var(--font-epilogue);
-          font-size: 15px;
-          color: #202430;
-          background: #ffffff;
-          outline: none;
-          box-sizing: border-box;
-          resize: vertical;
-          min-height: 140px;
-          transition: border-color 0.2s;
+          width: 100%; padding: 12px 16px; border: 1px solid #D6DDEB;
+          border-radius: 4px; font-family: var(--font-epilogue); font-size: 15px;
+          color: #202430; background: #ffffff; outline: none;
+          box-sizing: border-box; resize: vertical; min-height: 140px; transition: border-color 0.2s;
         }
         .admin-textarea:focus { border-color: #4640DE; }
         .admin-textarea::placeholder { color: #A8ADB7; }
         .admin-label {
-          font-family: var(--font-epilogue);
-          font-size: 13px;
-          font-weight: 600;
-          color: #515B6F;
-          display: block;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
+          font-family: var(--font-epilogue); font-size: 13px; font-weight: 600;
+          color: #515B6F; display: block; margin-bottom: 8px;
+          text-transform: uppercase; letter-spacing: 0.06em;
         }
         .job-admin-row:hover { background-color: #FAFAFA !important; }
+        .app-row { transition: background 0.15s; }
+        .app-row:hover { background-color: #FAFAFA; }
         .delete-btn:hover { background-color: #fff0f0 !important; color: #cc0000 !important; }
         .tab-btn { transition: all 0.2s; }
-        @keyframes shimmer {
-          0%,100% { opacity: 0.6; } 50% { opacity: 0.3; }
-        }
-        .form-grid {
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr !important; } }
+        .app-search-row { display: flex; gap: 12px; }
+        @media (max-width: 540px) { .app-search-row { flex-direction: column; } }
+        .app-table-header, .app-table-row {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          grid-template-columns: 1.4fr 1.1fr 90px 110px;
+          gap: 16px;
+          padding: 14px 24px;
         }
-        @media (max-width: 600px) {
-          .form-grid { grid-template-columns: 1fr !important; }
+        @media (max-width: 680px) {
+          .app-table-header { display: none; }
+          .app-table-row { grid-template-columns: 1fr; gap: 8px; padding: 20px 24px; }
         }
       `}</style>
 
@@ -263,17 +274,8 @@ const AdminPage = () => {
         </div>
 
         {/* Tabs */}
-        <div
-          style={{
-            display: "flex",
-            gap: "0",
-            borderBottom: "2px solid #D6DDEB",
-          }}
-        >
-          {[
-            { key: "listings", label: `All Listings (${allJobs.length})` },
-            { key: "add", label: "+ Add New Job" },
-          ].map((tab) => (
+        <div style={{ display: "flex", borderBottom: "2px solid #D6DDEB" }}>
+          {tabs.map((tab) => (
             <button
               key={tab.key}
               className="tab-btn"
@@ -317,7 +319,6 @@ const AdminPage = () => {
               overflow: "hidden",
             }}
           >
-            {/* Table header */}
             <div
               style={{
                 display: "grid",
@@ -346,8 +347,6 @@ const AdminPage = () => {
                 ),
               )}
             </div>
-
-            {/* Rows */}
             {allJobs.length === 0 ? (
               <div style={{ padding: "60px", textAlign: "center" }}>
                 <p
@@ -493,11 +492,9 @@ const AdminPage = () => {
             >
               Post a New Job
             </h2>
-
             <div
               style={{ display: "flex", flexDirection: "column", gap: "20px" }}
             >
-              {/* Title + Company */}
               <div className="form-grid">
                 <div>
                   <label className="admin-label">Job Title *</label>
@@ -520,8 +517,6 @@ const AdminPage = () => {
                   />
                 </div>
               </div>
-
-              {/* Location + Category */}
               <div className="form-grid">
                 <div>
                   <label className="admin-label">Location *</label>
@@ -549,8 +544,6 @@ const AdminPage = () => {
                   </select>
                 </div>
               </div>
-
-              {/* Type + Salary */}
               <div className="form-grid">
                 <div>
                   <label className="admin-label">Job Type</label>
@@ -578,8 +571,6 @@ const AdminPage = () => {
                   />
                 </div>
               </div>
-
-              {/* Description */}
               <div>
                 <label className="admin-label">Description *</label>
                 <textarea
@@ -590,8 +581,6 @@ const AdminPage = () => {
                   onChange={handleChange}
                 />
               </div>
-
-              {/* Requirements */}
               <div>
                 <label className="admin-label">Requirements</label>
                 <input
@@ -612,8 +601,6 @@ const AdminPage = () => {
                   Separate each skill or requirement with a comma
                 </p>
               </div>
-
-              {/* Messages */}
               {formError && (
                 <p
                   style={{
@@ -639,8 +626,6 @@ const AdminPage = () => {
                   ✓ {successMsg}
                 </p>
               )}
-
-              {/* Buttons */}
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 <button
                   onClick={handleAdd}
@@ -688,6 +673,435 @@ const AdminPage = () => {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── APPLICATIONS TAB ── */}
+        {activeTab === "applications" && (
+          <div style={{ maxWidth: "900px" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-clash)",
+                fontSize: "22px",
+                fontWeight: 600,
+                color: "#202430",
+                margin: "0 0 24px 0",
+              }}
+            >
+              View Applications
+            </h2>
+
+            {/* Search panel */}
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #D6DDEB",
+                borderRadius: "4px",
+                padding: "24px",
+                marginBottom: "24px",
+              }}
+            >
+              {/* Dropdown */}
+              <label className="admin-label">Select a job</label>
+              <select
+                className="admin-select"
+                value={selectedJobId}
+                onChange={handleDropdownChange}
+                style={{ marginBottom: "20px" }}
+              >
+                <option value="">— Pick a job to see who applied —</option>
+                {allJobs.map((j) => (
+                  <option key={j._id} value={j._id}>
+                    {j.title} · {j.company} · {j.location}
+                  </option>
+                ))}
+              </select>
+
+              {/* OR divider */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "20px",
+                }}
+              >
+                <div
+                  style={{ flex: 1, height: "1px", backgroundColor: "#D6DDEB" }}
+                />
+                <span
+                  style={{
+                    fontFamily: "var(--font-epilogue)",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: "#A8ADB7",
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  OR
+                </span>
+                <div
+                  style={{ flex: 1, height: "1px", backgroundColor: "#D6DDEB" }}
+                />
+              </div>
+
+              {/* Manual Job ID search */}
+              <label className="admin-label">Search by Job ID</label>
+              <div className="app-search-row">
+                <input
+                  className="admin-input"
+                  placeholder="Paste a Job ID e.g. 6642f3a1b4d..."
+                  value={searchInput}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setSelectedJobId("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  onClick={handleSearch}
+                  style={{
+                    fontFamily: "var(--font-epilogue)",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    backgroundColor: "#4640DE",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "12px 28px",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "background 0.2s",
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#3530c0")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#4640DE")
+                  }
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+
+            {/* Results */}
+            {searchedJobId &&
+              (() => {
+                const {
+                  data: apps,
+                  loading: appsLoading,
+                  error: appsError,
+                } = getApplicationsForJob(searchedJobId);
+                const jobInfo = allJobs.find((j) => j._id === searchedJobId);
+                const tagStyle = jobInfo
+                  ? TAG_COLORS[jobInfo.category] || TAG_COLORS.Other
+                  : TAG_COLORS.Other;
+
+                return (
+                  <div
+                    style={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #D6DDEB",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Results header */}
+                    <div
+                      style={{
+                        padding: "16px 24px",
+                        backgroundColor: "#F8F8FD",
+                        borderBottom: "1px solid #D6DDEB",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "12px",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-clash)",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            color: "#202430",
+                            margin: "0 0 2px 0",
+                          }}
+                        >
+                          {jobInfo
+                            ? `${jobInfo.title} · ${jobInfo.company}`
+                            : `Job ID: ${searchedJobId}`}
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-epilogue)",
+                            fontSize: "13px",
+                            color: "#515B6F",
+                            margin: 0,
+                          }}
+                        >
+                          {appsLoading
+                            ? "Loading..."
+                            : `${apps.length} application${apps.length !== 1 ? "s" : ""} found`}
+                        </p>
+                      </div>
+                      {jobInfo && (
+                        <span
+                          style={{
+                            fontFamily: "var(--font-epilogue)",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            color: tagStyle.color,
+                            backgroundColor: tagStyle.bg,
+                            borderRadius: "4px",
+                            padding: "4px 12px",
+                          }}
+                        >
+                          {jobInfo.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Loading */}
+                    {appsLoading && (
+                      <div style={{ padding: "48px", textAlign: "center" }}>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-epilogue)",
+                            color: "#A8ADB7",
+                            fontSize: "15px",
+                          }}
+                        >
+                          Loading applications...
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Error */}
+                    {appsError && !appsLoading && (
+                      <div style={{ padding: "48px", textAlign: "center" }}>
+                        <p style={{ fontSize: "36px", margin: "0 0 12px 0" }}>
+                          ⚠️
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-epilogue)",
+                            color: "#FF6550",
+                            fontSize: "15px",
+                            margin: 0,
+                          }}
+                        >
+                          {appsError}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Empty */}
+                    {!appsLoading && !appsError && apps.length === 0 && (
+                      <div style={{ padding: "64px", textAlign: "center" }}>
+                        <p style={{ fontSize: "40px", margin: "0 0 12px 0" }}>
+                          📭
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-clash)",
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            color: "#202430",
+                            margin: "0 0 6px 0",
+                          }}
+                        >
+                          No applications yet
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-epilogue)",
+                            fontSize: "14px",
+                            color: "#515B6F",
+                            margin: 0,
+                          }}
+                        >
+                          No one has applied to this job yet.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Table */}
+                    {!appsLoading && !appsError && apps.length > 0 && (
+                      <>
+                        <div
+                          className="app-table-header"
+                          style={{
+                            borderBottom: "1px solid #D6DDEB",
+                            backgroundColor: "#FAFAFA",
+                          }}
+                        >
+                          {[
+                            "Applicant & Note",
+                            "Email",
+                            "Resume",
+                            "Applied On",
+                          ].map((h) => (
+                            <span
+                              key={h}
+                              style={{
+                                fontFamily: "var(--font-epilogue)",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                color: "#A8ADB7",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.08em",
+                              }}
+                            >
+                              {h}
+                            </span>
+                          ))}
+                        </div>
+
+                        {apps.map((app, i) => (
+                          <div
+                            key={app._id || i}
+                            className="app-row app-table-row"
+                            style={{
+                              borderBottom:
+                                i < apps.length - 1
+                                  ? "1px solid #D6DDEB"
+                                  : "none",
+                              alignItems: "start",
+                            }}
+                          >
+                            {/* Name + cover note */}
+                            <div>
+                              <p
+                                style={{
+                                  fontFamily: "var(--font-clash)",
+                                  fontSize: "15px",
+                                  fontWeight: 600,
+                                  color: "#202430",
+                                  margin: "0 0 4px 0",
+                                }}
+                              >
+                                {app.name}
+                              </p>
+                              {app.coverNote && (
+                                <p
+                                  style={{
+                                    fontFamily: "var(--font-epilogue)",
+                                    fontSize: "12px",
+                                    color: "#7C8493",
+                                    margin: 0,
+                                    fontStyle: "italic",
+                                    overflow: "hidden",
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                  }}
+                                >
+                                  "{app.coverNote}"
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Email — tappable */}
+                            <a
+                              href={`mailto:${app.email}`}
+                              style={{
+                                fontFamily: "var(--font-epilogue)",
+                                fontSize: "14px",
+                                color: "#515B6F",
+                                textDecoration: "none",
+                                wordBreak: "break-all",
+                                alignSelf: "center",
+                              }}
+                              onMouseEnter={(e) =>
+                                (e.target.style.color = "#4640DE")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.target.style.color = "#515B6F")
+                              }
+                            >
+                              {app.email}
+                            </a>
+
+                            {/* Resume */}
+                            <div style={{ alignSelf: "center" }}>
+                              {app.resumeUrl ? (
+                                <a
+                                  href={app.resumeUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    fontFamily: "var(--font-epilogue)",
+                                    fontSize: "13px",
+                                    fontWeight: 700,
+                                    color: "#4640DE",
+                                    textDecoration: "none",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "4px",
+                                    padding: "6px 12px",
+                                    border: "1px solid #4640DE",
+                                    borderRadius: "4px",
+                                    transition: "all 0.2s",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#4640DE";
+                                    e.currentTarget.style.color = "#fff";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "transparent";
+                                    e.currentTarget.style.color = "#4640DE";
+                                  }}
+                                >
+                                  View →
+                                </a>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontFamily: "var(--font-epilogue)",
+                                    fontSize: "13px",
+                                    color: "#A8ADB7",
+                                  }}
+                                >
+                                  —
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Date */}
+                            <p
+                              style={{
+                                fontFamily: "var(--font-epilogue)",
+                                fontSize: "13px",
+                                color: "#A8ADB7",
+                                margin: 0,
+                                alignSelf: "center",
+                              }}
+                            >
+                              {app.createdAt
+                                ? new Date(app.createdAt).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    },
+                                  )
+                                : "—"}
+                            </p>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
           </div>
         )}
       </div>

@@ -90,7 +90,7 @@ const Footer = () => {
   return (
     <footer
       style={{
-        backgroundColor: "#202430",
+        backgroundColor: "#1A1A2E",
         width: "100%",
         boxSizing: "border-box",
       }}

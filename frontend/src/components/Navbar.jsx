@@ -13,7 +13,6 @@ const Navbar = ({ forceWhite = false }) => {
 
   const navLinks = [
     { label: "Find Jobs", path: "/jobs" },
-    { label: "Browse Companies", path: "/companies" },
     { label: "Admin", path: "/admin" },
   ];
 
