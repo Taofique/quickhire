@@ -1,7 +1,7 @@
 import CategorySection from "../components/CategorySection";
 import CompaniesSection from "../components/CompaniesSection";
 import HeroSection from "../components/HeroSection";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import StartPostingSection from "../components/StartPostingSection";
 import FeaturedJobSection from "../components/FeaturedJobsSection";
 
