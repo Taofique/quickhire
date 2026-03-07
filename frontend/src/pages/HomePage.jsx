@@ -1,3 +1,4 @@
+import CategorySection from "../components/CategorySection";
 import CompaniesSection from "../components/CompaniesSection";
 import HeroSection from "../components/HeroSection";
 import Navbar from "../components/NavBar";
@@ -10,6 +11,7 @@ const HomePage = () => {
       <div>
         <HeroSection />
         <CompaniesSection />
+        <CategorySection />
         {/* Temp spacer so page is scrollable to test navbar hide/show */}
         <div style={{ height: "1000px" }} />
       </div>

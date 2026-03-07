@@ -155,7 +155,7 @@ const CompaniesSection = () => {
           position: relative;
         }
 
-        /* Fade edges */
+        /* Fade edges - hidden on mobile */
         .carousel-outer::before,
         .carousel-outer::after {
           content: "";
@@ -175,6 +175,21 @@ const CompaniesSection = () => {
           background: linear-gradient(to left, #ffffff, transparent);
         }
 
+        /* Hide fade edges on mobile */
+        @media (max-width: 768px) {
+          .carousel-outer::before,
+          .carousel-outer::after {
+            width: 40px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .carousel-outer::before,
+          .carousel-outer::after {
+            width: 20px;
+          }
+        }
+
         .carousel-track {
           display: flex;
           align-items: center;
@@ -182,6 +197,19 @@ const CompaniesSection = () => {
           width: max-content;
           animation: infiniteScroll 25s linear infinite;
           will-change: transform;
+        }
+
+        /* Reduce gap on mobile */
+        @media (max-width: 768px) {
+          .carousel-track {
+            gap: 40px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .carousel-track {
+            gap: 30px;
+          }
         }
 
         .carousel-track:hover {
@@ -205,18 +233,31 @@ const CompaniesSection = () => {
         .company-item:hover {
           opacity: 1;
         }
+
+        /* Adjust SVG sizes on mobile */
+        @media (max-width: 768px) {
+          .company-item svg {
+            height: 50px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .company-item svg {
+            height: 40px !important;
+          }
+        }
       `}</style>
 
-      {/* Label */}
       <p
         style={{
           fontFamily: "var(--font-epilogue)",
           fontSize: "14px",
           color: "#98A2B1",
-          textAlign: "center",
           marginBottom: "36px",
           letterSpacing: "0.3px",
-          paddingRight: "1450px",
+          paddingLeft: "clamp(24px, 8vw, 128px)",
+          paddingRight: "clamp(24px, 8vw, 128px)",
+          boxSizing: "border-box",
         }}
       >
         Companies we helped grow
