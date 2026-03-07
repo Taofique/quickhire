@@ -44,6 +44,32 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
     >
+      <style>{`
+        @keyframes dropIn {
+          from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .mobile-nav-link {
+          display: flex;
+          align-items: center;
+          padding: 12px 16px;
+          border-radius: 10px;
+          color: #515B6F;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+        .mobile-nav-link:hover {
+          background-color: #F0F0FF;
+          color: #4640DE;
+          font-weight: 600;
+        }
+        .mobile-nav-link.active {
+          color: #4640DE;
+          font-weight: 600;
+        }
+      `}</style>
+
       <nav
         className="w-full border-b transition-all duration-300"
         style={{
@@ -121,7 +147,7 @@ const Navbar = () => {
                 height: "32px",
                 backgroundColor: "#C0C9D9",
                 flexShrink: 0,
-                margin: "0 8px", // Added margin to make it more visible
+                margin: "0 8px",
               }}
             />
 
@@ -142,12 +168,14 @@ const Navbar = () => {
         </div>
 
         {/* ── MOBILE top bar ── */}
-        <div className="md:hidden flex items-center justify-between h-[72px] px-6">
+        <div
+          className="md:hidden flex items-center justify-between h-[72px]"
+          style={{ paddingLeft: "20px", paddingRight: "20px" }}
+        >
           <Link to="/" className="flex items-center shrink-0">
             <img src={logo} alt="QuickHire" className="h-8 w-auto" />
           </Link>
 
-          {/* Custom hamburger — rounded pill button, 2 full lines + 1 half line */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex flex-col justify-center items-center transition-all duration-300"
@@ -162,7 +190,6 @@ const Navbar = () => {
               padding: "14px",
             }}
           >
-            {/* Line 1 — full */}
             <span
               style={{
                 display: "block",
@@ -176,7 +203,6 @@ const Navbar = () => {
                   : "none",
               }}
             />
-            {/* Line 2 — full */}
             <span
               style={{
                 display: "block",
@@ -188,10 +214,8 @@ const Navbar = () => {
                 transform: menuOpen
                   ? "rotate(-45deg) translate(5px, -5px)"
                   : "none",
-                opacity: menuOpen ? 1 : 1,
               }}
             />
-            {/* Line 3 — half, hidden when open */}
             <span
               style={{
                 display: "block",
@@ -208,7 +232,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Dorpdown */}
+        {/* ── MOBILE DROPDOWN ── */}
         {menuOpen && (
           <div
             className="md:hidden absolute"
@@ -220,61 +244,52 @@ const Navbar = () => {
               borderRadius: "16px",
               boxShadow:
                 "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
-              overflow: "hidden",
               zIndex: 100,
               animation: "dropIn 0.2s ease",
+              padding: "8px",
             }}
           >
-            <style>{`
-              @keyframes dropIn {
-                from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-                to   { opacity: 1; transform: translateY(0)   scale(1);    }
-              }
-            `}</style>
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.path}
+                onClick={() => setMenuOpen(false)}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.backgroundColor = "#F0F0FF";
+                  e.currentTarget.style.color = "#4640DE";
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "#515B6F";
+                }}
+                className="font-epilogue text-[15px]"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "12px 16px",
+                  borderRadius: "10px",
+                  color:
+                    location.pathname === link.path ? "#4640DE" : "#515B6F",
+                  backgroundColor: "transparent",
+                  fontWeight: location.pathname === link.path ? 600 : 500,
+                  textDecoration: "none",
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
 
-            {/* Nav Links */}
-            {navLinks.map((link) => {
-              const isActive =
-                location.pathname === link.path && hoveredNav === null;
-              const isHovered = hoveredNav === link.label + "_mobile";
-              const highlighted = isActive || isHovered;
-
-              return (
-                <Link
-                  key={link.label}
-                  to={link.path}
-                  onClick={() => setMenuOpen(false)}
-                  onMouseEnter={() => setHoveredNav(link.label + "_mobile")}
-                  onMouseLeave={() => setHoveredNav(null)}
-                  className="font-epilogue text-[15px] font-medium transition-all duration-200"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "12px 16px",
-                    borderRadius: "10px",
-                    color: highlighted ? "#4640DE" : "#515B6F",
-                    backgroundColor: highlighted ? "#F0F0FF" : "transparent",
-                    fontWeight: highlighted ? 600 : 500,
-                  }}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-
-            {/* Divider */}
             <div
               style={{
                 height: "1px",
                 backgroundColor: "#F3F4F8",
-                margin: "0 16px",
+                margin: "4px 8px",
               }}
             />
 
-            {/* Signup and login Buttons */}
             <div
               style={{
-                padding: "12px 16px",
+                padding: "8px 0",
                 display: "flex",
                 flexDirection: "column",
                 gap: "8px",

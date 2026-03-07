@@ -20,3 +20,9 @@
 html {
   scroll-behavior: smooth;
 }
+
+.mobile-nav-link:hover {
+  background-color: #f0f0ff !important;
+  color: #4640de !important;
+  font-weight: 600 !important;
+}
