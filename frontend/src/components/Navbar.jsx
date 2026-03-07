@@ -119,8 +119,9 @@ const Navbar = () => {
               style={{
                 width: "1px",
                 height: "32px",
-                backgroundColor: "#D6DDEB",
+                backgroundColor: "#C0C9D9",
                 flexShrink: 0,
+                margin: "0 8px", // Added margin to make it more visible
               }}
             />
 
